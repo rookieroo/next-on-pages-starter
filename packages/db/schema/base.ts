@@ -1,24 +1,25 @@
-// noinspection TypeScriptValidateTypes
-
 import { integer, sqliteTable, text, blob } from "drizzle-orm/sqlite-core";
 import { sql } from "drizzle-orm";
 
+const createdAt = integer("created_at", { mode: "timestamp" }).default(sql`CURRENT_TIMESTAMP`)
+const updatedAt = integer("updated_at", { mode: "timestamp" }).default(sql`CURRENT_TIMESTAMP`)
+
 // Users table - core user information
 export const users = sqliteTable("users", {
-  id: integer("id").primaryKey(),
+  id: integer("id").primaryKey({ autoIncrement: true }),
   name: text("name").notNull(),
   email: text("email").notNull().unique(),
   openid: text("openid").notNull().unique(),
   emailVerified: integer("email_verified", { mode: "boolean" }).default(false),
   avatar: text("avatar"),
   permission: integer("permission").default(0),
-  createdAt: integer("created_at", { mode: "timestamp" }).default(sql`CURRENT_TIMESTAMP`),
-  updatedAt: integer("updated_at", { mode: "timestamp" }).default(sql`CURRENT_TIMESTAMP`),
+  createdAt: createdAt,
+  updatedAt: updatedAt,
 });
 
 // OAuth accounts linked to users
 export const oauthAccounts = sqliteTable("oauth_accounts", {
-  id: integer("id").primaryKey(),
+  id: integer("id").primaryKey({ autoIncrement: true }),
   userId: text("user_id")
     .notNull()
     .references(() => users.id, { onDelete: "cascade" }),
@@ -29,25 +30,25 @@ export const oauthAccounts = sqliteTable("oauth_accounts", {
   expiresAt: integer("expires_at"),
   tokenType: text("token_type"),
   scope: text("scope"),
-  createdAt: integer("created_at", { mode: "timestamp" }).default(sql`CURRENT_TIMESTAMP`),
-  updatedAt: integer("updated_at", { mode: "timestamp" }).default(sql`CURRENT_TIMESTAMP`),
+  createdAt: createdAt,
+  updatedAt: updatedAt,
 });
 
 // Stripe customers
 export const stripeCustomers = sqliteTable("stripe_customers", {
-  id: integer("id").primaryKey(),
+  id: integer("id").primaryKey({ autoIncrement: true }),
   userId: text("user_id")
     .notNull()
     .unique()
     .references(() => users.id, { onDelete: "cascade" }),
   stripeCustomerId: text("stripe_customer_id").notNull().unique(),
-  createdAt: integer("created_at", { mode: "timestamp" }).default(sql`CURRENT_TIMESTAMP`),
-  updatedAt: integer("updated_at", { mode: "timestamp" }).default(sql`CURRENT_TIMESTAMP`),
+  createdAt: createdAt,
+  updatedAt: updatedAt,
 });
 
 // Subscriptions
 export const subscriptions = sqliteTable("subscriptions", {
-  id: integer("id").primaryKey(),
+  id: integer("id").primaryKey({ autoIncrement: true }),
   userId: text("user_id")
     .notNull()
     .references(() => users.id, { onDelete: "cascade" }),
@@ -55,17 +56,17 @@ export const subscriptions = sqliteTable("subscriptions", {
   stripePriceId: text("stripe_price_id"),
   stripeCurrentPeriodEnd: integer("stripe_current_period_end", { mode: "timestamp" }),
   status: text("status").notNull(), // 'active', 'canceled', 'past_due', etc.
-  createdAt: integer("created_at", { mode: "timestamp" }).default(sql`CURRENT_TIMESTAMP`),
-  updatedAt: integer("updated_at", { mode: "timestamp" }).default(sql`CURRENT_TIMESTAMP`),
+  createdAt: createdAt,
+  updatedAt: updatedAt,
 });
 
 // CloudFlare KV Cache table (for session/token storage)
 export const kvCache = sqliteTable("kv_cache", {
-  key: integer("key").primaryKey(),
+  key: integer("key").primaryKey({ autoIncrement: true }),
   value: blob("value").notNull(),
   expiresAt: integer("expires_at", { mode: "timestamp" }),
-  createdAt: integer("created_at", { mode: "timestamp" }).default(sql`CURRENT_TIMESTAMP`),
-  updatedAt: integer("updated_at", { mode: "timestamp" }).default(sql`CURRENT_TIMESTAMP`),
+  createdAt: createdAt,
+  updatedAt: updatedAt,
 });
 
 // Products/Prices (synced from Stripe)
@@ -75,12 +76,12 @@ export const products = sqliteTable("products", {
   name: text("name").notNull(),
   description: text("description"),
   active: integer("active", { mode: "boolean" }).default(true),
-  createdAt: integer("created_at", { mode: "timestamp" }).default(sql`CURRENT_TIMESTAMP`),
-  updatedAt: integer("updated_at", { mode: "timestamp" }).default(sql`CURRENT_TIMESTAMP`),
+  createdAt: createdAt,
+  updatedAt: updatedAt,
 });
 
 export const prices = sqliteTable("prices", {
-  id: integer("id").primaryKey(),
+  id: integer("id").primaryKey({ autoIncrement: true }),
   productId: text("product_id")
     .notNull()
     .references(() => products.id, { onDelete: "cascade" }),
@@ -91,6 +92,33 @@ export const prices = sqliteTable("prices", {
   intervalCount: integer("interval_count"),
   unitAmount: integer("unit_amount"),
   active: integer("active", { mode: "boolean" }).default(true),
-  createdAt: integer("created_at", { mode: "timestamp" }).default(sql`CURRENT_TIMESTAMP`),
-  updatedAt: integer("updated_at", { mode: "timestamp" }).default(sql`CURRENT_TIMESTAMP`),
+  createdAt: createdAt,
+  updatedAt: updatedAt,
+});
+
+export const customerTable = sqliteTable('customer', {
+  customerId: integer('customerId').primaryKey(),
+  companyName: text('companyName').notNull(),
+  contactName: text('contactName').notNull(),
+});
+
+// Define posts table with foreign key relationship
+export const posts = sqliteTable('posts', {
+  id: text('id').primaryKey(),
+  title: text('title').notNull(),
+  content: text('content').notNull(),
+  authorId: text('author_id').notNull().references(() => users.id),
+  published: integer('published', { mode: 'boolean' }).notNull().default(false),
+  createdAt: createdAt,
+});
+
+export const notion_connections = sqliteTable("notion_connections", {
+  id: integer("id").primaryKey(),
+  uid: integer("uid").references(() => users.id, { onDelete: 'cascade' }).notNull(),
+  notion_workspace_id: text("notion_workspace_id").notNull(),
+  notion_access_token: text("notion_access_token"),
+  workspace_name: text("workspace_name"),
+  workspace_icon: text("workspace_icon"),
+  createdAt: createdAt,
+  updatedAt: updatedAt,
 });

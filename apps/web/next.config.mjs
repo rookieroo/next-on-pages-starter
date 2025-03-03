@@ -2,7 +2,10 @@
 import { setupDevPlatform } from '@cloudflare/next-on-pages/next-dev';
 
 /** @type {import('next').NextConfig} */
-const nextConfig = {};
+const nextConfig = {
+  transpilePackages: ['@repo/ui'],
+  reactStrictMode: true,
+};
 
 export default nextConfig;
 

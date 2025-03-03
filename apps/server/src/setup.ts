@@ -14,6 +14,7 @@ export function setup() {
   const env: Env = getEnv();
   const gh_client_id = env.P_GITHUB_CLIENT_ID;
   const gh_client_secret = env.P_GITHUB_CLIENT_SECRET;
+  const gh_auth_callback = env.P_GITHUB_AUTH_CALLBACK;
   const google_client_id = env.GOOGLE_CLIENT_ID;
   const google_client_secret = env.GOOGLE_CLIENT_SECRET;
   const google_auth_callback = env.GOOGLE_AUTH_CALLBACK;
@@ -28,7 +29,8 @@ export function setup() {
   const oauth = oauth2({
     GitHub: [
       gh_client_id,
-      gh_client_secret
+      gh_client_secret,
+      gh_auth_callback,
     ],
     Google: [
       google_client_id,
@@ -51,7 +53,7 @@ export function setup() {
       })
     )
     .derive({as: 'global'}, async ({headers, jwt}) => {
-      const authorization = headers['authorization']
+      const authorization = headers.authorization
       if (!authorization) {
         return {};
       }
@@ -73,7 +75,7 @@ export function setup() {
       if (!user) {
         return {};
       }
-      let stripeCustomerId = await env.BINDING_NAME.get(`stripe:user:${user.id}`);
+      const stripeCustomerId = await env.BINDING_NAME.get(`stripe:user:${user.id}`);
 
       return {
         uid: user.id,

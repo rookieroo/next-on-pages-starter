@@ -30,7 +30,7 @@ export const app = () => new Elysia({ aot: false })
     .use(StorageService())
     .use(StripeSerive())
     .use(ConfigService())
-    .get('/', () => `Hi`)
+    .get('/', () => "Hi, Elysia!")
     .onError(({path, params, code}) => {
       if (code === 'NOT_FOUND')
         return `${path} ${JSON.stringify(params)} not found`

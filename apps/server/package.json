@@ -1,16 +1,15 @@
 {
   "name": "@repo/server",
   "module": "index.ts",
-  "type": "module",
   "scripts": {
     "workers-secrets-sync:prod": "cross-env NODE_ENV=production node ../scripts/cloudflare-sync.js",
-    "db:generate": "bunx drizzle-kit generate",
-    "db:migrate:prod": "bunx wrangler d1 migrations apply useone-tech --remote",
-    "put:secrets:prod": "bunx wrangler secret put CLOUDFLARE_DB_ID --name=useone-tech-worker",
-    "workers:deploy": "bun i && bunx wrangler deploy",
-    "dev": "bun wrangler dev --port 11498",
+    "db:generate": "drizzle-kit generate",
+    "db:migrate:prod": "wrangler d1 migrations apply useone-tech --remote",
+    "put:secrets:prod": "wrangler secret put CLOUDFLARE_DB_ID --name=useone-tech-worker",
+    "workers:deploy": "wrangler deploy",
+    "dev": "wrangler dev --port 11498",
     "cf-typegen": "wrangler types",
-    "db:gen": "bun drizzle-kit generate"
+    "db:gen": "drizzle-kit generate"
   },
   "devDependencies": {
     "@types/bun": "^1.1.2",
@@ -31,6 +30,7 @@
     "@elysiajs/cron": "^1.0.3",
     "@elysiajs/eden": "^1.0.13",
     "@elysiajs/server-timing": "^1.0.2",
+    "@notionhq/client": "^2.2.16",
     "@repo/db": "workspace:*",
     "drizzle-orm": "^0.30.10",
     "elysia": "^1.0.21",

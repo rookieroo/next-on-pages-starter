@@ -1,20 +1,29 @@
+import type { D1Database, KVNamespace } from '@cloudflare/workers-types';
 import { drizzle } from 'drizzle-orm/d1';
 
 export interface Env {
     CLOUDFLARE_ACCOUNT_ID: string;
     CLOUDFLARE_API_TOKEN: string;
     CLOUDFLARE_DB_ID: string;
+    GITHUB_CLIENT_ID: string;
+    GITHUB_CLIENT_SECRET: string;
+    GITHUB_AUTH_CALLBACK: string;
+    NOTION_CLIENT_ID: string;
+    NOTION_CLIENT_SECRET: string;
+    NOTION_AUTH_CALLBACK: string;
+    DISCORD_CLIENT_ID: string;
+    DISCORD_CLIENT_SECRET: string;
+    DISCORD_AUTH_CALLBACK: string;
     GOOGLE_CLIENT_ID: string;
     GOOGLE_CLIENT_SECRET: string;
     GOOGLE_AUTH_CALLBACK: string;
+    PUSHOVER_API_TOKEN: string,
+    PUSHOVER_USER_KEY: string,
+    NEXT_PUBLIC_APP_URL: string,
     DB: D1Database;
-    NEXT_PUBLIC_APP_URL: string;
+    BINDING_NAME: KVNamespace,
     STRIPE_API_KEY: string;
     STRIPE_WEBHOOK_SECRET: string;
-    P_GITHUB_CLIENT_ID: string;
-    P_GITHUB_CLIENT_SECRET: string;
-    GITHUB_CLIENT_ID: string;
-    GITHUB_CLIENT_SECRET: string;
     JWT_SECRET: string;
     FRONTEND_URL: string;
     S3_REGION: string,
@@ -25,16 +34,12 @@ export interface Env {
     S3_BUCKET: string,
     S3_FOLDER: string,
     S3_CACHE_FOLDER: string,
-    BINDING_NAME: KVNamespace,
-    WEBHOOK_URL: string,
     S3_FORCE_PATH_STYLE: string,
-    RSS_TITLE: string,
-    RSS_DESCRIPTION: string,
-    PUSHOVER_API_TOKEN: string,
-    PUSHOVER_USER_KEY: string,
+    WEBHOOK_URL: string,
 }
 
 export function db(env: Env) {
     return drizzle(env.DB);
 }
+
 export default db;

@@ -13,7 +13,7 @@ export function StripeSerive() {
     .use(setup())
     .group('/stripe', (group) =>
       group
-        .get("/checkout", async ({set, uid, email, query: {priceId}}) => {
+        .get("/checkout", async ({redirect, uid, email, query: {priceId}}) => {
           if (!uid) return "not login";
           // stripe customer kv
           // Get the stripeCustomerId from your KV store
@@ -29,7 +29,7 @@ export function StripeSerive() {
             });
 
             // Store the relation between userId and stripeCustomerId in your KV
-            await env.BINDING_NAME.put.set(`stripe:user:${uid}`, newCustomer.id);
+            await env.BINDING_NAME.put(`stripe:user:${uid}`, newCustomer.id);
             stripeCustomerId = newCustomer.id;
           }
 
@@ -47,7 +47,7 @@ export function StripeSerive() {
             mode: 'subscription',
             success_url: `${env.NEXT_PUBLIC_APP_URL}/success`,
           });
-          set.redirect = session.url
+          redirect(session.url!)
         })
 
         .get("/success", async ({uid, cid}) => {
@@ -64,12 +64,12 @@ export function StripeSerive() {
             body,
             cookie: {redirect_to}
           }) => {
-          const { session_id } = body;
+          const { session_id } = body as any;
           const checkoutSession = await stripe.checkout.sessions.retrieve(session_id);
 
           const portalSession = await stripe.billingPortal.sessions.create({
-            customer: checkoutSession.customer,
-            return_url: redirect_to,
+            customer: checkoutSession.customer as string,
+            return_url: redirect_to.value as string,
           });
 
           return {
@@ -84,13 +84,14 @@ export function StripeSerive() {
             body,
             cid,
             request,
-            cookie: {redirect_to}
+            cookie: {redirect_to},
+            context
           }) => {
           // syncStripeDataToKV
           const subData = await syncStripeDataToKV(cid);
 
           let event = body;
-          const signature = request.headers.get['Stripe-Signature'];
+          const signature = request.headers.get('Stripe-Signature');
           if (!signature) return new Response('No signature', {status: 400})
           // Replace this endpoint secret with your endpoint's unique secret
           // If you are testing with the CLI, find the secret by running 'stripe listen'
@@ -102,18 +103,20 @@ export function StripeSerive() {
           if (endpointSecret) {
             // Get the signature sent by Stripe
             try {
+              const rawBody = await request.text();
               event = stripe.webhooks.constructEvent(
-                request.body,
+                rawBody,
                 signature,
                 endpointSecret
               );
             } catch (err) {
-              console.log(`⚠️  Webhook signature verification failed.`, err.message);
+              console.log(`⚠️  Webhook signature verification failed.`, err instanceof Error ? err.message : 'Unknown error');
               return new Response('Invalid code', {status: 400})
             }
-          }
-          waitUntil(processEvent(event));
+          context.waitUntil(processEvent(event as Stripe.Event));
+          // waitUntil(processEvent(event));
           return new Response('received', {status: 200})
-        })
+        }
+      })
     );
 }
