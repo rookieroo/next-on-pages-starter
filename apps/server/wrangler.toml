@@ -1,0 +1,20 @@
+name = "useone-tech-worker"
+main = "src/_worker.ts"
+compatibility_date = "2024-11-11"
+compatibility_flags = ["nodejs_compat_v2"]
+
+# WARNING: When running a production build locally using Wrangler, be aware that the .env file may be omitted. Therefore, ensure that you have the same environment variables in your wrangler.toml file.
+# However, you don't have to include Drizzle environment unless you want to access `drizzle-kit` commands in the deployed code.
+[vars]
+NEXT_PUBLIC_APP_URL="https://useone.tech"
+
+[observability.logs]
+enabled = true
+
+[[d1_databases]]
+binding = "DB" # i.e. available in your Worker on env.DB
+database_name = "useone-tech" # When you create your D1 DB, you choose the name
+database_id = "19783ea6-5e99-4536-94ba-b8af25662690"
+
+[ai]
+binding = "AI" # available in your Worker code on `env.AI`
