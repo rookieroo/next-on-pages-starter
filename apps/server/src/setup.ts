@@ -12,9 +12,9 @@ const anyUser = async (db: DB) => (await db.query.users.findMany())?.length > 0
 export function setup() {
   const db: DB = getDB();
   const env: Env = getEnv();
-  const gh_client_id = env.P_GITHUB_CLIENT_ID;
-  const gh_client_secret = env.P_GITHUB_CLIENT_SECRET;
-  const gh_auth_callback = env.P_GITHUB_AUTH_CALLBACK;
+  const gh_client_id = env.GITHUB_CLIENT_ID;
+  const gh_client_secret = env.GITHUB_CLIENT_SECRET;
+  const gh_auth_callback = env.GITHUB_AUTH_CALLBACK;
   const google_client_id = env.GOOGLE_CLIENT_ID;
   const google_client_secret = env.GOOGLE_CLIENT_SECRET;
   const google_auth_callback = env.GOOGLE_AUTH_CALLBACK;

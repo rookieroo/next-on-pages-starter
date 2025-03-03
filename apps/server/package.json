@@ -4,8 +4,8 @@
   "scripts": {
     "workers-secrets-sync:prod": "cross-env NODE_ENV=production node ../scripts/cloudflare-sync.js",
     "db:generate": "drizzle-kit generate",
-    "db:migrate:prod": "wrangler d1 migrations apply useone-tech --remote",
-    "put:secrets:prod": "wrangler secret put CLOUDFLARE_DB_ID --name=useone-tech-worker",
+    "db:migrate:prod": "wrangler d1 migrations apply CLOUDFLARE_DB_NAME --remote",
+    "put:secrets:prod": "wrangler secret put CLOUDFLARE_DB_ID --name=CLOUDFLARE_WORKERS_NAME",
     "workers:deploy": "wrangler deploy",
     "dev": "wrangler dev --port 11498",
     "cf-typegen": "wrangler types",
